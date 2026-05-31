@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Journal des anniversaires</title>
+  <style>
+    :root {
+      --green: #2f6f55;
+      --green-dark: #245842;
+      --green-light: #e8f4ef;
+      --grid: #d5dadd;
+      --text: #1f2933;
+      --muted: #637381;
+      --today: #fff7d6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #f5f7f8, #ffffff);
+    }
+
+    header {
+      padding: 24px;
+      background: var(--green);
+      color: white;
+      box-shadow: 0 3px 12px rgba(0,0,0,.15);
+    }
+
+    header h1 {
+      margin: 0 0 6px;
+      font-size: 28px;
+    }
+
+    header p {
+      margin: 0;
+      opacity: .9;
+    }
+
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+      align-items: end;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, .07);
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: var(--blue-dark);
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 86px;
+      resize: vertical;
+      font-family: Consolas, monospace;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--green);
+      color: white;
+      box-shadow: 0 4px 12px rgba(47,111,85,.25);
+    }
+
+    button:hover { background: var(--green-dark); }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .secondary { background: #52606d; }
+    .secondary:hover { background: #3e4c59; }
+
+    .success-button {
+      background: linear-gradient(#7df85d, #149b23);
+      border: 3px solid #0c7a19;
+      color: white;
+      text-shadow: 0 1px 1px rgba(0,0,0,.45);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.35), 0 5px 10px rgba(0,0,0,.25);
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--grid);
+      border-radius: 14px;
+      background: white;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, .07);
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 1030px;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: var(--green);
+      color: white;
+      text-align: left;
+      padding: 9px 8px;
+      border: 1px solid var(--green-dark);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 7px 8px;
+      border: 1px solid var(--grid);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    tr:nth-child(even) td { background: #f8fafc; }
+    tr.is-today td { background: var(--today); font-weight: 700; }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.45;
+    }
+
+    .formulas {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    code {
+      display: block;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 10px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+
+    .notice {
+      margin: 12px 0;
+      color: var(--green-dark);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Journal des anniversaires</h1>
+    <p>Âge exact, prochaine date d’anniversaire, signe du zodiaque et signe chinois.</p>
+  </header>
+
+  <main>
+    <section class="toolbar">
+      <div class="card">
+        <label for="todayInput">Date de référence</label>
+        <input id="todayInput" type="date" />
+      </div>
+
+      <div class="card">
+        <label for="searchInput">Recherche</label>
+        <input id="searchInput" type="search" placeholder="Nom, prénom, signe..." oninput="renderTable()" />
+      </div>
+    </section>
+
+    <section class="card">
+      <label for="dataInput">Données source : Nom,Prénom,AAAAMMJJ</label>
+      <textarea id="dataInput" spellcheck="false"></textarea>
+      <div class="button-row" style="margin-top:10px">
+        <button onclick="loadDataFromTextarea()">Importer / Mettre à jour</button>
+        <button class="secondary" onclick="resetDefaultData()">Réinitialiser</button>
+      </div>
+      <div id="message" class="notice"></div>
+    </section>
+
+    <section class="table-wrap" style="margin-top:18px">
+      <table id="birthdayTable">
+        <thead>
+          <tr>
+            <th>Nom, Prénom</th>
+            <th>Âge exact</th>
+            <th>Date de naissance</th>
+            <th>Prochain Anniversaire</th>
+            <th>Signe du Zodiaque</th>
+            <th>Signe Chinois</th>
+			<th>Nb jour(s) avant anniversaire</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <script>
+    const defaultCsv = `LeCouffe,Clémence,19571209
+Brochu,Yvon,19590719
+Rompré,Hugues,19710531
+LeCouffe-Desjardins,Adam,19760724
+Tremblay,Isabelle,19780706
+LeCouffe-Desjardins,Félix,19780728
+Nouokam Wakam,Carine Flore,19810605
+LeCouffe-Desjardins,Marie,19810618
+Brochu-LeCouffe,Gabriel,19900301
+Brochu-LeCouffe,Benjamin,19931116
+Simard,Joanie,19930314
+Bruneau,Mathilde,19981007
+Rompré,Vincent,19990127
+Massicotte,Angélique,20010418
+Bao,Michael-Andrea,20010628
+Massicotte,Kamil,20030616
+Desaulniers,Mia,20070531
+Espinoza-Desjardins,Alexis,20080903
+Wakam,Moïse,20090410
+Desjardins,Charles-Philippe,20091104
+Wakam,Anne-Sarah,20151026`;
+
+    let people = [];
+    let currentSort = "calendar";
+
+    const fmtDate = new Intl.DateTimeFormat("fr-CA", {
+      weekday: "long", year: "numeric", month: "long", day: "numeric"
+    });
+
+    function parseYmd(ymd) {
+      const clean = String(ymd || "").trim();
+      if (!/^\d{8}$/.test(clean)) return null;
+      const y = Number(clean.slice(0, 4));
+      const m = Number(clean.slice(4, 6));
+      const d = Number(clean.slice(6, 8));
+      const date = new Date(y, m - 1, d);
+      if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) return null;
+      return date;
+    }
+
+    function ymd(date) {
+      return `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}`;
+    }
+
+    function getToday() {
+      const value = document.getElementById("todayInput").value;
+      const [y, m, d] = value.split("-").map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function normalizeDate(date) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+
+    function daysBetween(a, b) {
+      const ms = normalizeDate(b) - normalizeDate(a);
+      return Math.round(ms / 86400000);
+    }
+
+    function exactAge(birthDate, today) {
+      let years = today.getFullYear() - birthDate.getFullYear();
+      let months = today.getMonth() - birthDate.getMonth();
+      let days = today.getDate() - birthDate.getDate();
+
+      if (days < 0) {
+        months--;
+        const previousMonthLastDay = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+        days += previousMonthLastDay;
+      }
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+      return `${years} ans, ${months} mois, ${days} jours`;
+    }
+
+    function nextBirthday(birthDate, today) {
+      let next = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+      if (next < normalizeDate(today)) {
+        next = new Date(today.getFullYear() + 1, birthDate.getMonth(), birthDate.getDate());
+      }
+      return next;
+    }
+
+    function zodiacSign(date) {
+      const m = date.getMonth() + 1;
+      const d = date.getDate();
+      if ((m === 3 && d >= 21) || (m === 4 && d <= 19)) return "Bélier";
+      if ((m === 4 && d >= 20) || (m === 5 && d <= 20)) return "Taureau";
+      if ((m === 5 && d >= 21) || (m === 6 && d <= 20)) return "Gémeaux";
+      if ((m === 6 && d >= 21) || (m === 7 && d <= 22)) return "Cancer";
+      if ((m === 7 && d >= 23) || (m === 8 && d <= 22)) return "Lion";
+      if ((m === 8 && d >= 23) || (m === 9 && d <= 22)) return "Vierge";
+      if ((m === 9 && d >= 23) || (m === 10 && d <= 22)) return "Balance";
+      if ((m === 10 && d >= 23) || (m === 11 && d <= 21)) return "Scorpion";
+      if ((m === 11 && d >= 22) || (m === 12 && d <= 21)) return "Sagittaire";
+      if ((m === 12 && d >= 22) || (m === 1 && d <= 19)) return "Capricorne";
+      if ((m === 1 && d >= 20) || (m === 2 && d <= 18)) return "Verseau";
+      return "Poissons";
+    }
+
+    function chineseSign(year) {
+      const signs = ["Rat", "Buffle", "Tigre", "Lapin", "Dragon", "Serpent", "Cheval", "Chèvre", "Singe", "Coq", "Chien", "Cochon"];
+      return signs[(year - 4) % 12];
+    }
+
+    function parseCsv(text) {
+      return text.split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => {
+          const parts = line.split(",");
+          const birthRaw = parts.pop().trim();
+          const firstName = parts.pop()?.trim() || "";
+          const lastName = parts.join(",").trim();
+          const displayName = `${lastName}, ${firstName}`.replace(/^,\s*/, "");
+          return { displayName, birthRaw, birthDate: parseYmd(birthRaw) };
+        })
+        .filter(p => p.displayName && p.birthDate);
+    }
+
+    function loadDataFromTextarea() {
+      people = parseCsv(document.getElementById("dataInput").value);
+      document.getElementById("message").textContent = `${people.length} personne(s) importée(s).`;
+      applyCurrentSort();
+      renderTable();
+    }
+
+    function resetDefaultData() {
+      document.getElementById("dataInput").value = defaultCsv;
+      loadDataFromTextarea();
+    }
+
+    function sortByCalendarOrder() {
+      currentSort = "calendar";
+      people.sort((a, b) =>
+        (a.birthDate.getMonth() - b.birthDate.getMonth()) ||
+        (a.birthDate.getDate() - b.birthDate.getDate()) ||
+        a.displayName.localeCompare(b.displayName, "fr")
+      );
+      renderTable();
+    }
+
+    function sortByUpcomingBirthdays() {
+      currentSort = "upcoming";
+      const today = getToday();
+      people.sort((a, b) => {
+        const an = nextBirthday(a.birthDate, today);
+        const bn = nextBirthday(b.birthDate, today);
+        return an - bn || a.displayName.localeCompare(b.displayName, "fr");
+      });
+      renderTable();
+    }
+
+    function applyCurrentSort() {
+      if (currentSort === "upcoming") sortByUpcomingBirthdays();
+      else sortByCalendarOrder();
+    }
+
+    function renderTable() {
+      const tbody = document.querySelector("#birthdayTable tbody");
+      const today = getToday();
+      const search = document.getElementById("searchInput").value.toLowerCase().trim();
+      tbody.innerHTML = "";
+
+      people.forEach(person => {
+        const birth = person.birthDate;
+        const next = nextBirthday(birth, today);
+        const rowText = `${person.displayName} ${zodiacSign(birth)} ${chineseSign(birth.getFullYear())}`.toLowerCase();
+        if (search && !rowText.includes(search)) return;
+
+        const tr = document.createElement("tr");
+        if (daysBetween(today, next) === 0) tr.classList.add("is-today");
+
+        const cells = [
+          person.displayName,
+          exactAge(birth, today),
+          fmtDate.format(birth),
+          fmtDate.format(next),
+          zodiacSign(birth),
+          chineseSign(birth.getFullYear()),
+          `${daysBetween(today, next)} jour(s)`
+        ];
+
+        cells.forEach(value => {
+          const td = document.createElement("td");
+          td.textContent = value;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById("todayInput").addEventListener("change", () => {
+      applyCurrentSort();
+      renderTable();
+    });
+
+	const today = new Date();
+	today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+
+	document.getElementById("todayInput").value =
+		today.toISOString().split("T")[0];
+
+	resetDefaultData();
+  </script>
+</body>
+</html>
