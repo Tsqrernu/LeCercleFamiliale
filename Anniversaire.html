@@ -187,7 +187,7 @@
 <body>
   <header>
     <h1>Journal des anniversaires</h1>
-    <p>Âge exact, prochaine date d’anniversaire, signe du zodiaque et signe chinois.</p>
+    <p>Âge exact, prochaine date d’anniversaire.</p>
   </header>
 
   <main>
@@ -197,11 +197,7 @@
         <input id="todayInput" type="date" />
       </div>
 
-      <div class="card">
-        <div class="button-row">
-          <button class="success-button" onclick="sortByUpcomingBirthdays()">▶ Trier par: Nb jour(s) avant anniversaire</button>
-        </div>
-      </div>
+
 
       <div class="card">
         <label for="searchInput">Recherche</label>
@@ -209,31 +205,26 @@
       </div>
     </section>
 
-    <section class="card">
-      <label for="dataInput">Données source : Nom,Prénom,AAAAMMJJ</label>
-      <textarea id="dataInput" spellcheck="false"></textarea>
-      <div class="button-row" style="margin-top:10px">
-        <button onclick="loadDataFromTextarea()">Importer / Mettre à jour</button>
-        <button class="secondary" onclick="resetDefaultData()">Réinitialiser</button>
-      </div>
-      <div id="message" class="notice"></div>
-    </section>
-
     <section class="table-wrap" style="margin-top:18px">
       <table id="birthdayTable">
         <thead>
           <tr>
             <th>Nom, Prénom</th>
+            <th>Anniversaire</th>
             <th>Âge exact</th>
-            <th>Date de naissance</th>
-            <th>Prochain Anniversaire</th>
-            <th>Signe du Zodiaque</th>
-            <th>Signe Chinois</th>
-			<th>Nb jour(s) avant anniversaire</th>
+			<th>Jours restants</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
+    </section>
+
+    <section class="card">
+      <textarea id="dataInput" spellcheck="false" style="display:none;"></textarea>
+      <div class="button-row" style="margin-top:10px">
+
+      </div>
+      <div id="message" class="notice"></div>
     </section>
 
   </main>
@@ -415,11 +406,8 @@ Wakam,Anne-Sarah,20151026`;
 
         const cells = [
           person.displayName,
-          exactAge(birth, today),
-          fmtDate.format(birth),
           fmtDate.format(next),
-          zodiacSign(birth),
-          chineseSign(birth.getFullYear()),
+		  exactAge(birth, today),
           `${daysBetween(today, next)} jour(s)`
         ];
 
@@ -434,6 +422,7 @@ Wakam,Anne-Sarah,20151026`;
 
     document.getElementById("todayInput").addEventListener("change", () => {
       applyCurrentSort();
+	  sortByUpcomingBirthdays();
       renderTable();
     });
 
@@ -444,6 +433,7 @@ Wakam,Anne-Sarah,20151026`;
 		today.toISOString().split("T")[0];
 
 	resetDefaultData();
+	sortByUpcomingBirthdays();
   </script>
 </body>
 </html>
