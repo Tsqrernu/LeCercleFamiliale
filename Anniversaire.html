@@ -203,10 +203,10 @@
       <table id="birthdayTable">
         <thead>
           <tr>
-			<th>Jours restants</th>
             <th>Nom, Prénom</th>
             <th>Anniversaire</th>
             <th>Âge exact</th>
+			<th>Jours restants</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -404,10 +404,10 @@ Wakam,Anne-Sarah,20151026`;
         if (daysBetween(today, next) === 0) tr.classList.add("is-today");
 
         const cells = [
-          `${daysBetween(today, next)} jour(s)`
 		  person.displayName,
           fmtDate.format(next),
 		  exactAge(birth, today),
+         `${daysBetween(today, next)} jour(s)`
         ];
 
         cells.forEach(value => {
