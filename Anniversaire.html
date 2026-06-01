@@ -76,7 +76,7 @@
       border: 1px solid #cbd5e1;
       border-radius: 10px;
       padding: 10px;
-      font-size: 14px;
+      font-size: 11px;
       background: #fff;
     }
 
@@ -127,7 +127,7 @@
     table {
       border-collapse: collapse;
       width: 100%;
-      min-width: 1030px;
+      min-width: 600px;
     }
 
     th {
@@ -139,14 +139,14 @@
       text-align: left;
       padding: 9px 8px;
       border: 1px solid var(--green-dark);
-      font-size: 14px;
+      font-size: 11px;
       white-space: nowrap;
     }
 
     td {
       padding: 7px 8px;
       border: 1px solid var(--grid);
-      font-size: 14px;
+      font-size: 11px;
       white-space: nowrap;
     }
 
@@ -154,7 +154,7 @@
     tr.is-today td { background: var(--today); font-weight: 700; }
 
     .small {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--muted);
       margin-top: 8px;
       line-height: 1.45;
@@ -174,7 +174,7 @@
       padding: 10px;
       border-radius: 10px;
       overflow-x: auto;
-      font-size: 12px;
+      font-size: 11px;
     }
 
     .notice {
@@ -197,22 +197,16 @@
         <input id="todayInput" type="date" />
       </div>
 
-
-
-      <div class="card">
-        <label for="searchInput">Recherche</label>
-        <input id="searchInput" type="search" placeholder="Nom, prénom, signe..." oninput="renderTable()" />
-      </div>
     </section>
 
     <section class="table-wrap" style="margin-top:18px">
       <table id="birthdayTable">
         <thead>
           <tr>
+			<th>Jours restants</th>
             <th>Nom, Prénom</th>
             <th>Anniversaire</th>
             <th>Âge exact</th>
-			<th>Jours restants</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -225,6 +219,11 @@
 
       </div>
       <div id="message" class="notice"></div>
+	  
+      <div class="card">
+        <label for="searchInput">Recherche</label>
+        <input id="searchInput" type="search" placeholder="Nom, prénom, signe..." oninput="renderTable()" />
+      </div>
     </section>
 
   </main>
@@ -405,10 +404,10 @@ Wakam,Anne-Sarah,20151026`;
         if (daysBetween(today, next) === 0) tr.classList.add("is-today");
 
         const cells = [
-          person.displayName,
+          `${daysBetween(today, next)} jour(s)`
+		  person.displayName,
           fmtDate.format(next),
 		  exactAge(birth, today),
-          `${daysBetween(today, next)} jour(s)`
         ];
 
         cells.forEach(value => {
